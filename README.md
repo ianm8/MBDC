@@ -1,2 +1,4 @@
 # MBDC
-Multiband direct conversion reciever
+Multiband Direct Conversion Receiver
+
+This is the firmware for a multiband direct conversion receiver for amateur bands. Bands convered are 80M, 40M, 20M, 15M, and 10M.
