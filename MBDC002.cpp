@@ -1,3 +1,7 @@
+/*
+ * Multi-band Direc Conversion receiver control software
+ * Copyright 2022, Ian Mitchell, VK7IAN
+ */
 
 //https://github.com/etherkit/Si5351Arduino
 // 67848 bytes with new/delete
@@ -401,7 +405,6 @@ static int32_t readings[NUM_READINGS];     // the readings from the analog input
 static int32_t readIndex = 0;              // the index of the current reading
 static int32_t total = 0;                  // the running total
 static int32_t average = 0;                // the average
-//int inputPin = A2;
 
 ResponsiveAnalogRead mainTune(MAIN_TUNE_PIN,true);
 ResponsiveAnalogRead fineTune(FINE_TUNE_PIN,true);
@@ -429,9 +432,8 @@ void setup(void)
   delay(50);
   digitalWrite(LED_BUILTIN,LOW);
   delay(500);
-////
+
   const bool si5351_found = si5351.init(SI5351_CRYSTAL_LOAD_0PF, 26000000UL, 0UL);
-  //const bool si5351_found = si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000UL, 17300UL);
   if (!si5351_found)
   {
     for (;;)
@@ -442,27 +444,12 @@ void setup(void)
       delay(500);
     }
   }
-  //bool si5351_found = si5351.init(SI5351_CRYSTAL_LOAD_8PF, 25000000UL, 0);
-  //si5351.set_freq(vfo_frequency, SI5351_CLK0);
   si5351.set_freq(7041400UL*100ULL, SI5351_CLK0);
-  //si5351.set_freq(10000000UL*100ULL, SI5351_CLK0);
-  //si5351.set_freq(15000000UL*100ULL, SI5351_CLK1);
-  //si5351.set_freq(20000000UL*100ULL, SI5351_CLK2);
-////
-/*
-  for (;;)
-  {
-    digitalWrite(LED_BUILTIN,HIGH);
-    delay(50);
-    digitalWrite(LED_BUILTIN,LOW);
-    delay(250);
-  }
-*/
   mainTune.setAnalogResolution(4096);
   fineTune.setAnalogResolution(4096);
   bandSet.setAnalogResolution(4096);
   memset(readings,0,sizeof(readings));
-////
+
   //Serial.begin(115200);
   //delay(5000);
 }
@@ -547,7 +534,6 @@ void loop(void)
     readIndex = 0;
     fineTune.update(analogRead(FINE_TUNE_PIN)>>4);
     bandSet.update(analogRead(BAND_PIN)>>4);
-////
     //Serial.printf("band: %u\n",bandSet.getValue()&0xff);
     band = band_map[bandSet.getValue()&0xff];
     fine_tune = ((int32_t)fineTune.getValue()-128L);
@@ -555,7 +541,6 @@ void loop(void)
     fine_tune = constrain(fine_tune,-100,100)*5;
   }
   average = total / NUM_READINGS;
-
   mainTune.update(average);
   uint32_t f = bands[band].start + bands[band].step * mainTune.getValue();
   f -= f%1000;
