@@ -1,5 +1,7 @@
 /*
- * Multi-band Direc Conversion receiver control software
+ * Multi-band Direct Conversion receiver control software
+ * Version 1.0
+ *
  * Copyright 2022, Ian Mitchell, VK7IAN
  */
 
