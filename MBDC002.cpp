@@ -1,5 +1,7 @@
 
 //https://github.com/etherkit/Si5351Arduino
+// 67848 bytes with new/delete
+// 67808 bytes with stack
 
 #include <ResponsiveAnalogRead.h>
 #include "si5351.h"
@@ -332,6 +334,7 @@ static const uint8_t band_map[256] =
 // each character is encoded into an 8-bit byte
 static const uint8_t morse_tab[] =
 {
+  0b0,               // space                     // No Morse
   0b01001010,        // ! exclamation
   0b01101101,        // " quotation
   0b01010111,        // # pound                   // No Morse, mapped to SK
@@ -522,7 +525,7 @@ void loop1(void)
           delay(DIT_PERIOD*3);
         }
         digitalWrite(LED_SIGNAL_PIN,LOW);
-        delay(DIT_PERIOD*3);
+        delay(DIT_PERIOD);
         morse >>= 1;
       }
       delay(DIT_PERIOD*5);
