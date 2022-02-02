@@ -41,13 +41,13 @@ The main tuning uses a 10 turn pot on an analog input. To smooth out the natural
 # Band Change and Fine Tuning
 The band change and fine tuning analog inputs are reduced to 8 bits and passed to the *ResponsiveAnalogRead* function. The band change value is mapped to a value in the range 0 - 10 using a mapping array. This was done because the band potentiometer has 11 detents that do not produce an exact linear response. The higher frequency bands are split into multiple sections to make tuning easier. 
 
-The fine tune value of 0 - 255 is modified to a value of -100 to +100 with a 20 point gap in the centre. The first frequency value is then calculated as follows:
+The fine tune value of 0 - 255 is modified to a value of -100 to +100 with a 20 point gap in the centre. The initial frequency value is then calculated as follows:
 ```
 frequency = bands[band].start + bands[band].step * mainTune.getValue();
 ```
 The bands[] arry contains the base frequency and step value for the band selected. The final frequency is then:
 ```
-frequency = (frequency-(frequency % 1000)) + fine_tune * 5;
+frequency = (frequency - (frequency % 1000)) + fine_tune * 5;
 ```
 Thus the frequency is converted to a whole KHz value before the fine tune value (which has a range of -500 to +500) is added. This makes it easier to tune in SSB stations that will usually be on a whole KHz frequency but still maintain an *analog* feel.
 
