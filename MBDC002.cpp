@@ -5,7 +5,19 @@
  * Copyright 2022, Ian Mitchell, VK7IAN
  */
 
-//https://github.com/etherkit/Si5351Arduino
+/*
+ * libraries used:
+ *
+ * https://github.com/etherkit/Si5351Arduino
+ * https://github.com/dxinteractive/ResponsiveAnalogRead
+ *
+ * Built using the Pi Pico arduino environment by Earle F. Philhower, III
+ *
+ * https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+ */
+
+
+// removing new and delete from Si5351 library:
 // 67848 bytes with new/delete
 // 67808 bytes with stack
 
