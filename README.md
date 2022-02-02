@@ -39,7 +39,7 @@ The main tuning uses a 10 turn pot on an analog input. To smooth out the natural
 
 
 # Band Change and Fine Tuning
-The band change and fine tuning analog inputs are reduced to 8 bits and passed to the *Resposive Analog Read* function. The band change value is mapped to a value in the range 0 - 11 using a mapping array. This was done because the band potentiometer has 11 detents that do not produce an exact linear response.
+The band change and fine tuning analog inputs are reduced to 8 bits and passed to the *ResponsiveAnalogRead* function. The band change value is mapped to a value in the range 0 - 11 using a mapping array. This was done because the band potentiometer has 11 detents that do not produce an exact linear response.
 
 The fine tune value of 0 - 255 is modified to a value of -100 to +100 with a 20 point gap in the centre. The first frequency value is then calculated as follows:
 ```
