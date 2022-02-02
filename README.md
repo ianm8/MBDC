@@ -49,9 +49,9 @@ The bands[] arry contains the base frequency and step value for the band selecte
 ```
 frequency = (frequency-(frequency % 1000)) + fine_tune * 5;
 ```
-Thus the frequency is converted to a whole khz value before the fine tune value (which has a range of -500 to +500) is added. This makes it easier to tune in SSB stations that will usually be on whole khz frequency.
+Thus the frequency is converted to a whole KHz value before the fine tune value (which has a range of -500 to +500) is added. This makes it easier to tune in SSB stations that will usually be on a whole KHz frequency but still maintain an *analog* feel.
 
 # Frequency Display
-
+The frequency is displayed on an LED in morse code. The resolution is 1 KHz, so the number of digits displayed will be either 4 or 5. The display function runs on core 1 and montiors the current frequency. If the current frequency changes the frequency is converted to morse code and displayed. There is a delay of 1 second between display values.
 
 73, VK7IAN
