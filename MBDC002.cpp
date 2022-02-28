@@ -1,6 +1,6 @@
 /*
  * Multi-band Direct Conversion receiver control software
- * Version 1.0
+ * Version 1.1
  *
  * Copyright 2022, Ian Mitchell, VK7IAN
  */
@@ -463,6 +463,8 @@ void setup(void)
   fineTune.setAnalogResolution(4096);
   bandSet.setAnalogResolution(4096);
   memset(readings,0,sizeof(readings));
+  
+  analogReadResolution(12);
 
   //Serial.begin(115200);
   //delay(5000);
