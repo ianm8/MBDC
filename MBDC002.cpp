@@ -1,6 +1,6 @@
 /*
  * Multi-band Direct Conversion receiver control software
- * Version 1.1
+ * Version 2.0a - not tested yet 03032022
  *
  * Copyright 2022, Ian Mitchell, VK7IAN
  */
@@ -16,6 +16,9 @@
  * https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
  */
 
+// undef one of these
+#define LED_DECIMAL
+//#define LED_MORSECODE
 
 // removing new and delete from Si5351 library:
 // 67848 bytes with new/delete
@@ -349,77 +352,6 @@ static const uint8_t band_map[256] =
   (uint8_t)10U  // 255
 };
 
-// each character is encoded into an 8-bit byte
-static const uint8_t morse_tab[] =
-{
-  0b0,               // space                     // No Morse
-  0b01001010,        // ! exclamation
-  0b01101101,        // " quotation
-  0b01010111,        // # pound                   // No Morse, mapped to SK
-  0b10110111,        // $ dollar or ~SX
-  0b00000000,        // % percent
-  0b00111101,        // & ampersand or ~AS
-  0b01100001,        // ' apostrophe
-  0b00110010,        // ( open paren
-  0b01010010,        // ) close paren
-  0b0,               // * asterisk                // No Morse
-  0b00110101,        // + plus or ~AR
-  0b01001100,        // , comma
-  0b01011110,        // - hypen
-  0b01010101,        // . period
-  0b00110110,        // / slant
-  0b00100000,        // 0                         // Read the bits from RIGHT to left,
-  0b00100001,        // 1                         // with a "1"=dit and "0"=dah
-  0b00100011,        // 2                         // example: 2 = 11000 or dit-dit-dah-dah-dah
-  0b00100111,        // 3                         // the final bit is always 1 = stop bit.
-  0b00101111,        // 4                         // see "sendElements" routine for more info.
-  0b00111111,        // 5
-  0b00111110,        // 6
-  0b00111100,        // 7
-  0b00111000,        // 8
-  0b00110000,        // 9
-  0b01111000,        // : colon
-  0b01101010,        // ; semicolon
-  0b0,               // <                         // No Morse
-  0b00101110,        // = equals or ~BT
-  0b0,               // >                         // No Morse
-  0b01110011,        // ? question
-  0b01101001,        // @ at or ~AC
-  0b00000101,        // A
-  0b00011110,        // B
-  0b00011010,        // C
-  0b00001110,        // D
-  0b00000011,        // E
-  0b00011011,        // F
-  0b00001100,        // G
-  0b00011111,        // H
-  0b00000111,        // I
-  0b00010001,        // J
-  0b00001010,        // K
-  0b00011101,        // L
-  0b00000100,        // M
-  0b00000110,        // N
-  0b00001000,        // O
-  0b00011001,        // P
-  0b00010100,        // Q
-  0b00001101,        // R
-  0b00001111,        // S
-  0b00000010,        // T
-  0b00001011,        // U
-  0b00010111,        // V
-  0b00001001,        // W
-  0b00010110,        // X
-  0b00010010,        // Y
-  0b00011100         // Z
-};
-
-static const int NUM_READINGS = 256;
-
-static int32_t readings[NUM_READINGS];     // the readings from the analog input
-static int32_t readIndex = 0;              // the index of the current reading
-static int32_t total = 0;                  // the running total
-static int32_t average = 0;                // the average
-
 ResponsiveAnalogRead mainTune(MAIN_TUNE_PIN,true);
 ResponsiveAnalogRead fineTune(FINE_TUNE_PIN,true);
 ResponsiveAnalogRead bandSet(BAND_PIN,false);
@@ -458,16 +390,11 @@ void setup(void)
       delay(500);
     }
   }
-  si5351.set_freq(7041400UL*100ULL, SI5351_CLK0);
+
+  analogReadResolution(12);
   mainTune.setAnalogResolution(4096);
   fineTune.setAnalogResolution(4096);
   bandSet.setAnalogResolution(4096);
-  memset(readings,0,sizeof(readings));
-  
-  analogReadResolution(12);
-
-  //Serial.begin(115200);
-  //delay(5000);
 }
 
 static void set_band(const uint8_t band)
@@ -501,21 +428,42 @@ static void set_band(const uint8_t band)
   delay(100);
 }
 
+#if defined(LED_MORSECODE)
+#if defined(LED_DECIMAL)
+#error please define one of LED_DECIMAL or LED_MORSECODE
+#endif
 void loop1(void)
 {
-  static uint32_t morse_frequency;
+  // bits are read from right to left and
+  // terminates when the value remaining
+  // is less than two after shifting right
+  static const uint8_t morse_tab[] =
+  {
+    0b00100000, // 0
+    0b00100001, // 1
+    0b00100011, // 2
+    0b00100111, // 3
+    0b00101111, // 4
+    0b00111111, // 5
+    0b00111110, // 6
+    0b00111100, // 7
+    0b00111000, // 8
+    0b00110000  // 9
+  };
+  static uint32_t morse_frequency = 0;
   const uint32_t f = frequency;
   if (morse_frequency!=f)
   {
     morse_frequency = f;
     char cw[16] = "";
     memset(cw,0,sizeof(cw));
-    sprintf(cw,"%u",morse_frequency/1000UL);
+    ultoa(morse_frequency/1000UL,cw,10);
     char *p = cw;
     while (*p)
     {
-      const char c = *p++;
-      uint8_t morse = morse_tab[c-32];
+      const char i = *p++ - 48;
+      if (i<0 || i>9) break;
+      uint8_t morse = morse_tab[i];
       while (morse>1)
       {
         digitalWrite(LED_SIGNAL_PIN,HIGH);
@@ -536,28 +484,87 @@ void loop1(void)
     delay(1000);
   }
 }
+#elif defined(LED_DECIMAL)
+#if defined(LED_MORSECODE)
+#error please define one of LED_DECIMAL or LED_MORSECODE
+#endif
+void loop1(void)
+{
+  // the decimal table has the following representation:
+  // short flash counts as one
+  // long flash counts as five
+  // two long flashes represents zero (5 + 5 = 10, drop the carry)
+  // so 7 is long, short, short
+  // and 4 is short, short, short, short
+  static const uint8_t decimal_tab[] =
+  {
+    0b00000100, // 0
+    0b00000011, // 1
+    0b00000111, // 2
+    0b00001111, // 3
+    0b00011111, // 4
+    0b00000010, // 5
+    0b00000110, // 6
+    0b00001110, // 7
+    0b00011110, // 8
+    0b00111110  // 9
+  };
+  static uint32_t decimal_frequency = 0;
+  const uint32_t f = frequency;
+  if (decimal_frequency!=f)
+  {
+    decimal_frequency = f;
+    char cw[16] = "";
+    memset(cw,0,sizeof(cw));
+    ultoa(decimal_frequency/1000UL,cw,10);
+    char *p = cw;
+    while (*p)
+    {
+      const char i = *p++ - 48;
+      if (i<0 || i>9) break;
+      uint8_t decimal = decimal_tab[i];
+      while (decimal>1)
+      {
+        digitalWrite(LED_SIGNAL_PIN,HIGH);
+        if (decimal&1)
+        {
+          delay(DIT_PERIOD);
+        }
+        else
+        {
+          delay(DIT_PERIOD*3);
+        }
+        digitalWrite(LED_SIGNAL_PIN,LOW);
+        delay(DIT_PERIOD);
+        decimal >>= 1;
+      }
+      delay(DIT_PERIOD*5);
+    }
+    delay(1000);
+  }
+}
+#else
+#error please define one of LED_DECIMAL or LED_MORSECODE
+#endif
+
+static const uint32_t analogRawTune(void)
+{
+  uint32_t raw_tune = 0;
+  for (uint32_t i=0;i<256;i++) raw_tune += analogRead(MAIN_TUNE_PIN);
+  return (raw_tune>>8);
+}
 
 void loop(void)
 {
   static uint8_t band = 0;
   static int32_t fine_tune = 0;
-  total = total - readings[readIndex];
-  readings[readIndex] = analogRead(MAIN_TUNE_PIN);
-  total = total + readings[readIndex];
-  readIndex++;
-  if (readIndex >= NUM_READINGS)
-  {
-    readIndex = 0;
-    fineTune.update(analogRead(FINE_TUNE_PIN)>>4);
-    bandSet.update(analogRead(BAND_PIN)>>4);
-    //Serial.printf("band: %u\n",bandSet.getValue()&0xff);
-    band = band_map[bandSet.getValue()&0xff];
-    fine_tune = ((int32_t)fineTune.getValue()-128L);
-    fine_tune = fine_tune<-10?fine_tune+10:(fine_tune>10?fine_tune-10:0);
-    fine_tune = constrain(fine_tune,-100,100)*5;
-  }
-  average = total / NUM_READINGS;
-  mainTune.update(average);
+  mainTune.update(analogRawTune());
+  fineTune.update(analogRead(FINE_TUNE_PIN)>>4);
+  bandSet.update(analogRead(BAND_PIN)>>4);
+  band = band_map[bandSet.getValue()&0xff];
+  fine_tune = ((int32_t)fineTune.getValue()-128L);
+  fine_tune = fine_tune<-10?fine_tune+10:(fine_tune>10?fine_tune-10:0);
+  fine_tune = constrain(fine_tune,-100,100)*5;
   uint32_t f = bands[band].start + bands[band].step * mainTune.getValue();
   f -= f%1000;
   f += fine_tune;
@@ -565,8 +572,6 @@ void loop(void)
   {
     frequency = f;
     si5351.set_freq(frequency*SI5351_FREQ_MULT, SI5351_CLK0);
-    //Serial.printf("ADC2, Core temperature: %i %i %u %2.1fC %i\n",analog.getRawValue(),analog.getValue(),f,analogReadTemp(),band);
-    //delay(1000);
   }
   set_band(band);
 }
