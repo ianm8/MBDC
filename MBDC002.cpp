@@ -1,6 +1,6 @@
 /*
  * Multi-band Direct Conversion receiver control software
- * Version 2.0a - not tested yet 03032022
+ * Version 2.0
  *
  * Copyright 2022, Ian Mitchell, VK7IAN
  */
@@ -29,6 +29,7 @@
 #include "Wire.h"
 
 #define DIT_PERIOD     100
+#define DEC_PERIOD     200
 #define SET_BANDS      11
 #define BAND80_PIN     22
 #define BAND40_PIN     21
@@ -528,17 +529,17 @@ void loop1(void)
         digitalWrite(LED_SIGNAL_PIN,HIGH);
         if (decimal&1)
         {
-          delay(DIT_PERIOD);
+          delay(DEC_PERIOD);
         }
         else
         {
-          delay(DIT_PERIOD*3);
+          delay(DEC_PERIOD*3);
         }
         digitalWrite(LED_SIGNAL_PIN,LOW);
-        delay(DIT_PERIOD);
+        delay(DEC_PERIOD);
         decimal >>= 1;
       }
-      delay(DIT_PERIOD*5);
+      delay(DEC_PERIOD*5);
     }
     delay(1000);
   }
