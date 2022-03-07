@@ -1,6 +1,6 @@
 /*
  * Multi-band Direct Conversion receiver control software
- * Version 2.0
+ * Version 2.1
  *
  * Copyright 2022, Ian Mitchell, VK7IAN
  */
@@ -456,10 +456,10 @@ void loop1(void)
   if (morse_frequency!=f)
   {
     morse_frequency = f;
-    char cw[16] = "";
-    memset(cw,0,sizeof(cw));
-    ultoa(morse_frequency/1000UL,cw,10);
-    char *p = cw;
+    char buf[16] = "";
+    memset(buf,0,sizeof(buf));
+    ultoa(morse_frequency/1000UL,buf,10);
+    char *p = buf;
     while (*p)
     {
       const char i = *p++ - 48;
@@ -515,10 +515,10 @@ void loop1(void)
   if (decimal_frequency!=f)
   {
     decimal_frequency = f;
-    char cw[16] = "";
-    memset(cw,0,sizeof(cw));
-    ultoa(decimal_frequency/1000UL,cw,10);
-    char *p = cw;
+    char buf[16] = "";
+    memset(buf,0,sizeof(buf));
+    ultoa(decimal_frequency/1000UL,buf,10);
+    char *p = buf;
     while (*p)
     {
       const char i = *p++ - 48;
