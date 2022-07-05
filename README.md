@@ -7,7 +7,7 @@ This is the firmware and design files for a multiband direct conversion receiver
 
 Built using the Pi Pico arduino environment by Earle F. Philhower, III. See install details at:
 
-https://github.com/earlephilhower/arduino-pico]
+https://github.com/earlephilhower/arduino-pico
 
 
 Here is the "Additional Boards Manager URL" for quick start:
